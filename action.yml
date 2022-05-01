@@ -1,11 +1,40 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "Create Deployment Action"
+description: "Creates a GitHub Deployment"
 inputs:
-  milliseconds: # change this
+  transient_environment:
+    description: "Set this deployment as transient"
+    default: "false"
+    required: false
+  pr:
+    description: "Whether deployment is being created from a PR"
+    default: "false"
+    required: false
+  pr_id:
+    description: "If pr is set to true, pass the PR ID here"
+    required: false
+  initial_status:
+    description: "Initial status for the deployment"
+    default: "pending"
+    required: false
+  ref:
+    description: "The reference for the deployment"
+    required: false
+  token:
+    description: "Github repository token"
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  target_url:
+    description: "Target url location"
+    required: false
+  description:
+    description: "Descriptive message about the deployment"
+    required: false
+  environment:
+    description: "The name of the environment for the deployment"
+    default: "production"
+    required: false
+outputs:
+  deployment_id:
+    description: "The ID of the created deployment"
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"
