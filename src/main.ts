@@ -23,7 +23,7 @@ async function run() {
 
     const token = core.getInput("token", { required: true });
     const ref = core.getInput("ref", { required: false }) || context.ref;
-    const url = core.getInput("target_url", { required: false }) || logUrl;
+    const url = core.getInput("target_url", { required: false });
     const payload = JSON.parse(`{"web_url": "${url}"}`)
     const environment = core.getInput("environment", { required: false }) || "production";
     const description = core.getInput("description", { required: false });
