@@ -10,37 +10,43 @@ type DeploymentState =
   | "pending"
   | "success";
 
-async function run() {
+async function run(): Promise<void> {
   try {
     const context = github.context;
 
-    const pr = core.getInput("pr", { required: false }) === "true";
+    const pr = core.getInput("pr", {required: false}) === "true";
     const prId = core.getInput("pr_id", {required: false}) || 0;
 
-    const logUrl = pr ?
-      `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prId}/checks` :
-      `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks`;
+    const logUrl = pr
+      ? `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prId}/checks`
+      : `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks`;
 
-    const token = core.getInput("token", { required: true });
-    const ref = core.getInput("ref", { required: false }) || context.ref;
-    const url = core.getInput("target_url", { required: false });
-    const payload = JSON.parse(`{"web_url": "${url}"}`)
-    const environment = core.getInput("environment", { required: false }) || "production";
-    const description = core.getInput("description", { required: false });
+    const token = core.getInput("token", {required: true});
+    const ref = core.getInput("ref", {required: false}) || context.ref;
+    const url = core.getInput("target_url", {required: false});
+    const payload = JSON.parse(`{"web_url": "${url}"}`);
+    const environment =
+      core.getInput("environment", {required: false}) || "production";
+    const description = core.getInput("description", {required: false});
 
-    let deploymentId = parseFloat(core.getInput("deployment_id", { required: false }) || "0")
+    let deploymentId = parseFloat(
+      core.getInput("deployment_id", {required: false}) || "0"
+    );
 
-    const status: DeploymentState = (core.getInput("status", { required: false }) as DeploymentState) || "pending";
-    const autoMerge = core.getInput("auto_merge", { required: false }) === "true";
-    const transientEnvironment = core.getInput("transient_environment", { required: false }) === "true"
+    const status: DeploymentState =
+      (core.getInput("status", {required: false}) as DeploymentState) ||
+      "pending";
+    const autoMerge = core.getInput("auto_merge", {required: false}) === "true";
+    const transientEnvironment =
+      core.getInput("transient_environment", {required: false}) === "true";
 
-    const octokit = github.getOctokit(token)
+    const octokit = github.getOctokit(token);
 
     if (!deploymentId || deploymentId === 0) {
       const deployment = await octokit.rest.repos.createDeployment({
         owner: context.repo.owner,
         repo: context.repo.repo,
-        ref: ref,
+        ref,
         payload,
         required_contexts: [],
         environment,
@@ -49,7 +55,7 @@ async function run() {
         description
       });
 
-      if(deployment.status !== 201){
+      if (deployment.status !== 201) {
         throw new Error(`Failed to create deployment: ${deployment.status}`);
       }
 
@@ -62,16 +68,23 @@ async function run() {
       state: status,
       log_url: logUrl,
       environment_url: url,
-      description
+      description,
+      auto_inactive: true
     });
 
-    if(deploymentStatus.status !== 201){
-      throw new Error(`Failed to create deployment status: ${deploymentStatus.status}`);
+    if (deploymentStatus.status !== 201) {
+      throw new Error(
+        `Failed to create deployment status: ${deploymentStatus.status}`
+      );
     }
 
     core.setOutput("deployment_id", deploymentId);
-  } catch (error: any) {
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     core.error(error);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     core.setFailed(error.message);
   }
 }
