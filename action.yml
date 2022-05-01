@@ -12,8 +12,8 @@ inputs:
   pr_id:
     description: "If pr is set to true, pass the PR ID here"
     required: false
-  initial_status:
-    description: "Initial status for the deployment"
+  status:
+    description: "Status for the deployment"
     default: "pending"
     required: false
   ref:
@@ -31,6 +31,9 @@ inputs:
   environment:
     description: "The name of the environment for the deployment"
     default: "production"
+    required: false
+  deployment_id:
+    description: "The ID of the deployment"
     required: false
 outputs:
   deployment_id:
